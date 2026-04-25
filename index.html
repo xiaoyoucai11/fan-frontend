@@ -93,7 +93,7 @@
 
     function connectWS() {
       // 这里直接自动连当前公网地址
-      ws = new WebSocket("https://fan-backend-u177.onrender.com");
+      ws = new WebSocket("wss://fan-backend-u177.onrender.com");
 
       ws.onopen = function () {
         document.getElementById('msg').innerText = '连接服务器成功';
