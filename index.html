@@ -108,6 +108,12 @@
     .mode-btn {
       flex: 1;
       padding: 10px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      transform: scale(1.03);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
     .auto {background:#64b5f6;color:#fff;}
     .manual {background:#ffd180;color:#333;}
@@ -176,17 +182,17 @@
   </div>
 
   <div class="btns">
-    <button class="on" onclick="turnOn()">开启</button>
-    <button class="off" onclick="turnOff()">关闭</button>
+    <button class="on" onclick="turnOn()">开启</button><button class="off" onclick="turnOff()">关闭</button>
   </div>
 
   <div class="mode-box">
-    <button class="mode-btn auto" onclick="setMode(1)">自动模式</button><button class="mode-btn manual" onclick="setMode(0)">手动模式</button>
+    <button class="mode-btn auto active" id="autoBtn" onclick="setMode(1)">自动模式</button>
+    <button class="mode-btn manual" id="manualBtn" onclick="setMode(0)">手动模式</button>
   </div>
 
   <div class="slider-box">
     <label for="speed">调节风速：</label>
-    <input type="range" id="speed" min="0" max="100" value="0" 
+    <input type="range" id="speed" min="0" max="100" value="0" disabled
            oninput="this.style.setProperty('--value', this.value + '%');changeSpeed(this.value)">
   </div>
   <div class="msg" id="msg">等待连接服务器...</div>
@@ -196,6 +202,17 @@
 let ws;
 const wsUrl = "wss://fan-backend-u177.onrender.com";
 
+// 模式滑块控制
+function updateSliderDisabled(mode) {
+  const slider = document.getElementById('speed');
+  slider.disabled = mode === 1; // 自动=禁用，手动=启用
+}
+// 模式按钮高亮
+function updateModeBtnActive(mode) {
+  document.getElementById('autoBtn').classList.toggle('active', mode === 1);
+  document.getElementById('manualBtn').classList.toggle('active', mode === 0);
+}
+
 function connectWS() {
   ws = new WebSocket(wsUrl);
   ws.onopen = function () {
@@ -203,16 +220,23 @@ function connectWS() {
     ws.send(JSON.stringify({type:'register',role:'client'}));
   };
   ws.onmessage = function (event) {
-    const data = JSON.parse(event.data);
-    if (data.type === 'status') {
-      document.getElementById('online').innerText = data.online ? '在线' : '离线';
-      document.getElementById('temp').innerText = data.temp;
-      document.getElementById('humi').innerText = data.humi;
-      document.getElementById('modeText').innerText = data.mode===1 ? '自动' : '手动';
-      document.getElementById('speedText').innerText = data.speed;
-      document.getElementById('speed').value = data.speed;
-      document.getElementById('speed').style.setProperty('--value', data.speed + '%');
-      document.getElementById('msg').innerText = '状态已同步';
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'status') {
+        document.getElementById('online').innerText = data.online ? '在线' : '离线';
+        // 离线显示--
+        document.getElementById('temp').innerText = data.online ? data.temp : '--';
+        document.getElementById('humi').innerText = data.online ? data.humi : '--';
+        document.getElementById('modeText').innerText = data.mode === 1 ? '自动' : '手动';
+        document.getElementById('speedText').innerText = data.speed;
+        document.getElementById('speed').value = data.speed;
+        document.getElementById('speed').style.setProperty('--value', data.speed + '%');
+        updateSliderDisabled(data.mode);
+        updateModeBtnActive(data.mode);
+        document.getElementById('msg').innerText = '状态已同步';
+      }
+    } catch (e) {
+      console.error('解析消息失败', e);
     }
   };
   ws.onclose = function () {
@@ -240,18 +264,18 @@ function turnOff() {
 }
 
 function changeSpeed(value) {
-  document.getElementById('speedText').innerText=value;
+  document.getElementById('speedText').innerText = value;
   if(ws&&ws.readyState===1) {
     ws.send(JSON.stringify({type:'control',cmd:'speed',value:Number(value)}));
-    document.getElementById('msg').innerText=`已发送风速 ${value}%`;
+    document.getElementById('msg').innerText = `已发送风速 ${value}%`;
   }
 }
 
-// ✅ 修复：点击模式立即更新界面文字
 function setMode(mode) {
   const modeName = mode === 1 ? '自动' : '手动';
   document.getElementById('modeText').innerText = modeName;
-  
+  updateSliderDisabled(mode);
+  updateModeBtnActive(mode);
   if(ws&&ws.readyState===1) {
     ws.send(JSON.stringify({type:'control',cmd:'mode',value:mode}));
     document.getElementById('msg').innerText = `已切换至${modeName}模式`;
