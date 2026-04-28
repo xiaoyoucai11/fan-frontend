@@ -5,21 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>智能风扇控制面板</title>
   <style>
-    body {margin: 0;font-family: "Microsoft YaHei",sans-serif;background: #f4f7fb;display: flex;justify-content: center;align-items: center;height: 100vh;}
-    .panel {width: 360px;background: #fff;padding: 24px;border-radius: 16px;box-shadow: 0 8px 24px rgba(0,0,0,0.12);}
-    h1 {text-align: center;margin-bottom: 20px;font-size: 22px;}
-    .row {margin: 10px 0;font-size: 16px;}
-    .btns {display: flex;justify-content: space-between;margin-top: 20px;}
-    button {width: 48%;height: 42px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;}
-    .on {background:#28a745;}
-    .off {background:#dc3545;}
-    .mode-box {display: flex;gap:10px;margin:16px 0;}
-    .mode-btn {flex:1;padding:10px;border:none;border-radius:8px;}
-    .auto {background:#17a2b8;color:#fff;}
-    .manual {background:#ffc107;color:#222;}
-    .slider-box {margin-top:16px;}
-    input[type="range"] {width:100%;}
-    .msg {margin-top:16px;color:#555;min-height:20px;}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #e8f0fe 0%, #f4f7fb 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+    }
+    .panel {
+      width: 100%;
+      max-width: 380px;
+      background: #ffffff;
+      padding: 30px 26px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+      color: #2c3e50;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .row {
+      margin: 12px 0;
+      font-size: 16px;
+      color: #444;
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    .row span {
+      font-weight: 500;
+      color: #222;
+    }
+    .btns {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+      gap: 12px;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-weight: 500;
+    }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .on {
+      background: #28a745;
+      flex: 1;
+      height: 44px;
+    }
+    .off {
+      background: #dc3545;
+      flex: 1;
+      height: 44px;
+    }
+    .mode-box {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 12px 0;
+    }
+    .auto {
+      background: #17a2b8;
+      color: #fff;
+    }
+    .manual {
+      background: #ffc107;
+      color: #222;
+    }
+    .slider-box {
+      margin-top: 20px;
+      padding: 10px 0;
+    }
+    .slider-box label {
+      font-size: 16px;
+      color: #444;
+      display: block;
+      margin-bottom: 10px;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e9ecef;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #409eff;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(64, 158, 255, 0.3);
+    }
+    .msg {
+      margin-top: 20px;
+      color: #666;
+      min-height: 22px;
+      font-size: 15px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
