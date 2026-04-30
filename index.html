@@ -55,8 +55,7 @@
     .row::before {
       content: "";
       width: 6px;
-      height: 6px;
-      border-radius: 50%;
+      height: 6px; border-radius: 50%;
       background: #ffffff;
       opacity: 0.8;
       margin-right: 12px;
@@ -203,12 +202,11 @@
 let ws;
 const wsUrl = "wss://fan-backend-u177.onrender.com";
 
-// 模式滑块控制
 function updateSliderDisabled(mode) {
   const slider = document.getElementById('speed');
-  slider.disabled = mode === 1; // 自动=禁用，手动=启用
+  slider.disabled = mode === 1;
 }
-// 模式按钮高亮
+
 function updateModeBtnActive(mode) {
   document.getElementById('autoBtn').classList.toggle('active', mode === 1);
   document.getElementById('manualBtn').classList.toggle('active', mode === 0);
@@ -220,31 +218,41 @@ function connectWS() {
     document.getElementById('msg').innerText = '连接服务器成功';
     ws.send(JSON.stringify({type:'register',role:'client'}));
   };
+
   ws.onmessage = function (event) {
     try {
       const data = JSON.parse(event.data);
       if (data.type === 'status') {
         document.getElementById('online').innerText = data.online ? '在线' : '离线';
-        // 离线显示--
         document.getElementById('temp').innerText = data.online ? data.temp : '--';
         document.getElementById('humi').innerText = data.online ? data.humi : '--';
-        document.getElementById('modeText').innerText = data.mode === 1 ? '自动' : '手动';
-        document.getElementById('speedText').innerText = data.speed;
-        document.getElementById('speed').value = data.speed;
-        document.getElementById('speed').style.setProperty('--value', data.speed + '%');
-        updateSliderDisabled(data.mode);
-        updateModeBtnActive(data.mode);
+        
+        // 同步模式与风速
+        let currentMode = data.mode;
+        let currentSpeed = data.speed;
+        
+        document.getElementById('modeText').innerText = currentMode === 1 ? '自动' : '手动';
+        document.getElementById('speedText').innerText = currentSpeed;
+        document.getElementById('speed').value = currentSpeed;
+        document.getElementById('speed').style.setProperty('--value', currentSpeed + '%');
+        
+        // ✅ 核心：按钮自动浮起
+        updateSliderDisabled(currentMode);
+        updateModeBtnActive(currentMode);
+        
         document.getElementById('msg').innerText = '状态已同步';
       }
     } catch (e) {
       console.error('解析消息失败', e);
     }
   };
+
   ws.onclose = function () {
     document.getElementById('online').innerText = '断开';
     document.getElementById('msg').innerText = '连接断开，3秒后重连...';
     setTimeout(connectWS, 3000);
   };
+
   ws.onerror = function () {
     document.getElementById('msg').innerText = '连接出错';
   };
